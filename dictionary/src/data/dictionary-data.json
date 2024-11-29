@@ -1,0 +1,116 @@
+[
+  {
+    "key": "apel",
+    "keyDescription": "Sebuah buah berwarna merah yang biasa ditemukan di banyak negara.",
+    "value": "apple",
+    "valueDescription": "A round fruit typically red or green, with a sweet taste."
+  },
+  {
+    "key": "pisang",
+    "keyDescription": "Buah kuning yang dikenal luas di seluruh dunia.",
+    "value": "banana",
+    "valueDescription": "A long, yellow fruit with a sweet flavor."
+  },
+  {
+    "key": "jeruk",
+    "keyDescription": "Buah citrus yang memiliki rasa asam dan manis.",
+    "value": "orange",
+    "valueDescription": "A round, orange-colored fruit, known for its tangy flavor."
+  },
+  {
+    "key": "mangga",
+    "keyDescription": "Buah tropis dengan daging yang manis dan berair.",
+    "value": "mango",
+    "valueDescription": "A tropical fruit with a sweet, juicy flesh."
+  },
+  {
+    "key": "anggur",
+    "keyDescription": "Buah kecil yang tumbuh dalam tandan, sering digunakan untuk membuat jus atau anggur.",
+    "value": "grape",
+    "valueDescription": "Small, round fruits that grow in clusters, often used for making wine or juice."
+  },
+  {
+    "key": "melon",
+    "keyDescription": "Buah besar dan manis dengan daging berair.",
+    "value": "melon",
+    "valueDescription": "A large, sweet fruit with watery flesh, often eaten in the summer."
+  },
+  {
+    "key": "kiwi",
+    "keyDescription": "Buah kecil dengan kulit berbulu dan daging hijau segar.",
+    "value": "kiwi",
+    "valueDescription": "A small, fuzzy fruit with green flesh and tiny black seeds."
+  },
+  {
+    "key": "pepaya",
+    "keyDescription": "Buah tropis berwarna oranye dengan daging yang lembut dan manis.",
+    "value": "papaya",
+    "valueDescription": "A tropical fruit with orange flesh and sweet, soft texture."
+  },
+  {
+    "key": "stroberi",
+    "keyDescription": "Buah kecil berwarna merah dengan rasa manis dan sedikit asam.",
+    "value": "strawberry",
+    "valueDescription": "Small, red, sweet fruit with a slightly tart flavor."
+  },
+  {
+    "key": "nanas",
+    "keyDescription": "Buah tropis yang memiliki kulit kasar dan daging manis serta asam.",
+    "value": "pineapple",
+    "valueDescription": "A tropical fruit with rough skin and sweet, tangy flesh."
+  },
+  {
+    "key": "delima",
+    "keyDescription": "Buah berbentuk bulat yang memiliki biji berwarna merah.",
+    "value": "pomegranate",
+    "valueDescription": "A round fruit with red seeds that are known for their sweet-tart taste."
+  },
+  {
+    "key": "kelapa",
+    "keyDescription": "Buah besar yang memiliki air kelapa segar di dalamnya.",
+    "value": "coconut",
+    "valueDescription": "A large fruit with a hard outer shell and sweet coconut water inside."
+  },
+  {
+    "key": "pir",
+    "keyDescription": "Buah dengan kulit berwarna hijau atau kuning dan rasa manis.",
+    "value": "pear",
+    "valueDescription": "A fruit with green or yellow skin and a sweet, juicy taste."
+  },
+  {
+    "key": "tomat",
+    "keyDescription": "Buah merah yang sering digunakan dalam masakan atau sebagai salad.",
+    "value": "tomato",
+    "valueDescription": "A red fruit often used in cooking or eaten fresh in salads."
+  },
+  {
+    "key": "cabai",
+    "keyDescription": "Buah kecil yang digunakan untuk memberikan rasa pedas pada masakan.",
+    "value": "chili",
+    "valueDescription": "A small fruit used to add spiciness to dishes."
+  },
+  {
+    "key": "wortel",
+    "keyDescription": "Sayuran berwarna oranye dengan rasa manis dan renyah.",
+    "value": "carrot",
+    "valueDescription": "An orange vegetable with a sweet and crunchy texture."
+  },
+  {
+    "key": "kentang",
+    "keyDescription": "Sayuran umbi yang sering dimasak dengan berbagai cara.",
+    "value": "potato",
+    "valueDescription": "A starchy tuber often cooked in a variety of ways."
+  },
+  {
+    "key": "bawang",
+    "keyDescription": "Sayuran yang memiliki aroma kuat dan sering digunakan dalam masakan.",
+    "value": "onion",
+    "valueDescription": "A strong-smelling vegetable commonly used in cooking."
+  },
+  {
+    "key": "labu",
+    "keyDescription": "Sayuran berbentuk bulat dengan kulit tebal dan daging manis.",
+    "value": "pumpkin",
+    "valueDescription": "A round vegetable with thick skin and sweet flesh."
+  }
+]
