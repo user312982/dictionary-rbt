@@ -60,17 +60,7 @@ export default {
     };
   },
   created() {
-    this.importDataFr
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    omJson();
+    this.importDataFromJson();
   },
   methods: {
 
