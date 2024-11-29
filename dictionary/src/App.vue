@@ -238,7 +238,7 @@ body {
 }
 
 .btn:hover {
-  background-color: #45a049;
+  background-color: #b13232;
 }
 
 /* Static Notification Box */
