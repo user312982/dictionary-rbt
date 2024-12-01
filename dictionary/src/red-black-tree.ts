@@ -1,5 +1,3 @@
-type Color = "red" | "black";
-
 interface TreeNodeKey {
   key: string;
   description: string;
@@ -10,25 +8,28 @@ interface TreeNodeValue {
   description: string;
 }
 
-class Node {
+export class Node {
   key: TreeNodeKey;
   value: TreeNodeValue;
-  color: Color;
+  isRed: boolean;
   parent: Node | null;
   left: Node | null;
   right: Node | null;
+  gimmick: (() => any) | null;
 
   constructor(
     key: TreeNodeKey,
     value: TreeNodeValue,
-    color: Color = "red"
+    gimmick: (() => any) | null = null,
+    isRed: boolean = true
   ) {
     this.key = key;
     this.value = value;
-    this.color = color;
+    this.isRed = isRed;
     this.parent = null;
     this.left = null;
     this.right = null;
+    this.gimmick = gimmick;
   }
 }
 
@@ -40,16 +41,13 @@ export class RedBlackTree {
     this.TNULL = new Node(
       { key: "", description: "" },
       { value: "", description: "" },
-      "black"
+      null,
+      false
     );
     this.root = this.TNULL;
   }
 
-  insert(key: TreeNodeKey, value: TreeNodeValue): void {
-    const newNode = new Node(key, value);
-    newNode.left = this.TNULL;
-    newNode.right = this.TNULL;
-
+  insert(key: TreeNodeKey, value: TreeNodeValue, gimmick: (() => any) | null = null): void {
     let y: Node | null = null;
     let x: Node = this.root;
 
@@ -57,11 +55,18 @@ export class RedBlackTree {
       y = x;
       if (key.key < x.key.key) {
         x = x.left!;
-      } else {
+      } else if (key.key > x.key.key) {
         x = x.right!;
+      } else {
+        x.value = value;
+        x.gimmick = gimmick;
+        return;
       }
     }
 
+    const newNode = new Node(key, value, gimmick);
+    newNode.left = this.TNULL;
+    newNode.right = this.TNULL;
     newNode.parent = y;
     if (!y) {
       this.root = newNode;
@@ -72,7 +77,7 @@ export class RedBlackTree {
     }
 
     if (!newNode.parent) {
-      newNode.color = "black";
+      newNode.isRed = false;
       return;
     }
 
@@ -84,37 +89,37 @@ export class RedBlackTree {
   }
 
   private fixInsert(node: Node): void {
-    while (node.parent && node.parent.color === "red") {
+    while (node.parent && node.parent.isRed) {
       if (node.parent === node.parent.parent?.right) {
         const uncle = node.parent.parent.left;
-        if (uncle?.color === "red") {
-          uncle.color = "black";
-          node.parent.color = "black";
-          node.parent.parent.color = "red";
+        if (uncle?.isRed) {
+          uncle.isRed = false;
+          node.parent.isRed = false;
+          node.parent.parent.isRed = true;
           node = node.parent.parent;
         } else {
           if (node === node.parent.left) {
             node = node.parent;
             this.rightRotate(node);
           }
-          node.parent!.color = "black";
-          node.parent!.parent!.color = "red";
+          node.parent!.isRed = false;
+          node.parent!.parent!.isRed = true;
           this.leftRotate(node.parent!.parent!);
         }
       } else {
         const uncle = node.parent.parent?.right;
-        if (uncle?.color === "red") {
-          uncle.color = "black";
-          node.parent.color = "black";
-          node.parent.parent.color = "red";
+        if (uncle?.isRed) {
+          uncle.isRed = false;
+          node.parent.isRed = false;
+          node.parent.parent.isRed = true;
           node = node.parent.parent;
         } else {
           if (node === node.parent.right) {
             node = node.parent;
             this.leftRotate(node);
           }
-          node.parent!.color = "black";
-          node.parent!.parent!.color = "red";
+          node.parent!.isRed = false;
+          node.parent!.parent!.isRed = true;
           this.rightRotate(node.parent!.parent!);
         }
       }
@@ -122,7 +127,7 @@ export class RedBlackTree {
         break;
       }
     }
-    this.root.color = "black";
+    this.root.isRed = false;
   }
 
   private leftRotate(node: Node): void {
@@ -161,31 +166,55 @@ export class RedBlackTree {
     node.parent = temp;
   }
 
-  searchByKey(key: string): TreeNodeValue | null {
-    let current = this.root;
-    while (current !== this.TNULL) {
-      if (key === current.key.key) {
-        return current.value;
+  inOrderTraversal(callback: (node: Node) => void, node: Node | null = this.root): void {
+    if (!node || node === this.TNULL) return;
+    this.inOrderTraversal(callback, node.left);
+    callback(node);
+    this.inOrderTraversal(callback, node.right);
+  }
+
+  searchSequentialKey(query: string): Array<{ key: string; value: string; description: string; gimmick?: (() => any) | null }> {
+    const results: Array<{ key: string; value: string; description: string; gimmick?: (() => any) | null }> = [];
+    const lowerQuery = query.toLowerCase();
+  
+    this.inOrderTraversal((node) => {
+      if (node.key.key.toLowerCase().startsWith(lowerQuery)) {
+        results.push({
+          key: node.key.key,
+          value: node.value.value,
+          description: node.key.description,
+          gimmick: node.gimmick, // Include gimmick if present
+        });
       }
-      current = key < current.key.key ? current.left! : current.right!;
-    }
-    return null;
+    });
+  
+    return results;
   }
 
-  searchByValue(value: string): TreeNodeKey | null {
-    const traverse = (node: Node): TreeNodeKey | null => {
-      if (node === this.TNULL) return null;
-      if (node.value.value === value) return node.key;
-      return traverse(node.left!) || traverse(node.right!);
-    };
-    return traverse(this.root);
+  searchSequentialValue(query: string): Array<{ key: string; value: string; description: string; gimmick?: (() => any) | null }> {
+    const results: Array<{ key: string; value: string; description: string; gimmick?: (() => any) | null }> = [];
+    const lowerQuery = query.toLowerCase();
+  
+    this.inOrderTraversal((node) => {
+      if (node.value.value.toLowerCase().startsWith(lowerQuery)) {
+        results.push({
+          key: node.key.key,
+          value: node.value.value,
+          description: node.value.description,
+          gimmick: node.gimmick, // Include gimmick if present
+        });
+      }
+    });
+  
+    return results;
   }
 
-  importData(data: { key: string; keyDescription: string; value: string; valueDescription: string }[]): void {
+  importData(data: { key: string; keyDescription: string; value: string; valueDescription: string; gimmick?: (() => any) | null }[]): void {
     data.forEach((entry) =>
       this.insert(
         { key: entry.key, description: entry.keyDescription },
-        { value: entry.value, description: entry.valueDescription }
+        { value: entry.value, description: entry.valueDescription },
+        entry.gimmick || null
       )
     );
   }

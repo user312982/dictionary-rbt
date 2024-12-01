@@ -1,83 +1,103 @@
 <template>
   <div class="container">
-    <h2 class="title">Ganesha Dictionary</h2>
+    <h2 :style="titleStyle" class="title">Ganesha Dictionary</h2>
 
-    <!-- Toggle Button to Switch between Indonesian and English Translation -->
     <div class="toggle-group">
-  <button @click="toggleLanguageMode" class="btn-toggle">
-    <span class="toggle-text">{{ isIndonesianMode ? 'Switch to English to Indonesian' : 'Switch to Indonesian to English' }}</span>
-  </button>
-  </div>
+      <button @click="toggleLanguageMode" class="btn-toggle">
+        <span class="toggle-text">
+          {{ isIndonesianMode ? 'Switch to English to Indonesian' : 'Switch to Indonesian to English' }}
+        </span>
+      </button>
+    </div>
 
-  <!-- Single Input for Key or Value (Fixed size) -->
-  <div class="input-group">
-    <label :for="isIndonesianMode ? 'keyInput' : 'valueInput'" class="label">
-      {{ isIndonesianMode ? 'Translate Bahasa Indonesia ke Inggris' : 'Translate English to Indonesia' }}
-    </label>
-    <input
-      :id="isIndonesianMode ? 'keyInput' : 'valueInput'"
-      v-model="inputValue"
-      class="input"
-      :placeholder="isIndonesianMode ? 'Masukkan Kata' : 'Enter Word'"
-      @input="clearNotificationMessage"
-      @keyup.enter="onEnterPress"
-    />
-    <button @click="search" class="btn">{{ isIndonesianMode ? 'Terjemahkan' : 'Translate' }}</button>
-  </div>
+    <div class="input-group">
+      <label :for="isIndonesianMode ? 'keyInput' : 'valueInput'" class="label">
+        {{ isIndonesianMode ? 'Translate Bahasa Indonesia ke Inggris' : 'Translate English to Indonesia' }}
+      </label>
+      <input
+        :id="isIndonesianMode ? 'keyInput' : 'valueInput'"
+        v-model="inputValue"
+        class="input"
+        :placeholder="isIndonesianMode ? 'Masukkan Kata' : 'Enter Word'"
+        @input="clearNotificationMessage"
+        @keyup.enter="onEnterPress"
+      />
+      <button @click="search" class="btn">{{ isIndonesianMode ? 'Terjemahkan' : 'Translate' }}</button>
+    </div>
 
-
-
-    <!-- Static Notification Box (Fixed size) -->
     <div v-if="notificationMessage" :class="notificationClass" class="notification">
       {{ notificationMessage }}
     </div>
 
-    <!-- Static Search Result Box (Fixed size) -->
-    <div v-if="searchResult" class="result-box">
-      <p v-if="isIndonesianMode">
-        {{ searchResult.value }} <br> - {{ searchResult.valueDescription }} 
-      </p>
-      <p v-if="!isIndonesianMode">
-        {{ searchResult.key }} <br> - {{ searchResult.keyDescription }}
-      </p>
+    <div v-if="searchResult && searchResult.length" class="result-box">
+      <template v-if="isIndonesianMode">
+        <p v-for="(result, index) in searchResult" :key="index">
+          {{ result.value }} <br> - {{ result.valueDescription }}
+          <span v-if="result.gimmickResult" class="gimmick-message">{{ result.gimmickResult }}</span>
+        </p>
+      </template>
+      <template v-if="!isIndonesianMode">
+        <p v-for="(result, index) in searchResult" :key="index">
+          {{ result.key }} <br> - {{ result.keyDescription }}
+          <span v-if="result.gimmickResult" class="gimmick-message">{{ result.gimmickResult }}</span>
+        </p>
+      </template>
     </div>
+
+    <div v-if="isTimerActive" class="timer-container">
+      <h3>{{ timer }} Detik</h3>
+      <div v-if="isTimerActive" class="timer-message">
+        Timer berjalan...
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script lang="ts">
-import { RedBlackTree } from './red-black-tree'; 
-import jsonData from './data/dictionary-data.json'; // Adjust the path if necessary
+import { RedBlackTree } from './red-black-tree';
+import jsonData from './data/dictionary-data.json';
+import { playRockPaperScissors } from './components/rockPaperScrissor'; 
 
 export default {
   data() {
     return {
-      inputValue: "",
-      searchResult: null,
-      notificationMessage: "",
-      notificationClass: "",
+      inputValue: '',
+      searchResult: [],
+      notificationMessage: '',
+      notificationClass: '',
       tree: new RedBlackTree(),
-      isIndonesianMode: true, // Flag to toggle between Bahasa Indonesia and English input mode
+      isIndonesianMode: true,
+      titleStyle: {
+        color: '',
+      },
+      timer: 10, // Set timer mulai dari 10 detik
+      timerInterval: null as any, // Interval untuk menghitung mundur
+      isTimerActive: false, // Status apakah timer sedang aktif
+      isTimerFinished: false, // Status apakah timer sudah selesai
     };
   },
   created() {
     this.importDataFromJson();
   },
   methods: {
-
     onEnterPress() {
-  if (this.inputValue) {
-    // Trigger the search when Enter is pressed
-    this.search();
-  } else {
-    this.notificationMessage = "Please enter a word.";
-    this.notificationClass = "error-notification";
-    }
-  },
-
+      if (this.inputValue) {
+        this.search();
+      } else {
+        this.notificationMessage = 'Please enter a word.';
+        this.notificationClass = 'error-notification';
+      }
+    },
 
     importDataFromJson() {
       try {
-        this.tree.importData(jsonData); // Ensure jsonData is correct
+        const processedData = jsonData.map(item => {
+          // Anda bisa mengonversi gimmick menjadi fungsi di sini
+          item.gimmick = this.createGimmickFunction(item.gimmick);
+          return item;
+        });
+        this.tree.importData(processedData); // Pastikan jsonData sudah diproses
       } catch (error) {
         console.error("Error importing JSON data:", error);
         this.notificationMessage = "Failed to import JSON data.";
@@ -85,182 +105,150 @@ export default {
       }
     },
 
-    toggleLanguageMode() {
-      this.isIndonesianMode = !this.isIndonesianMode; 
-      this.inputValue = ""; // Clear input when toggling mode
-      this.searchResult = null; // Reset search result
-      this.notificationMessage = ""; // Clear notification
+    handleGimmickChoice(choice: string) {
+      const result = playRockPaperScissors(choice); // Panggil fungsi dari file lain
+      this.notificationMessage = result.message;
+      this.notificationClass = result.resultClass;
+      this.changeTitleColor(result.titleColor);
     },
 
-    // Method to clear the notification message when user types a new word
+    startTimer() {
+      this.isTimerActive = true;
+      this.isTimerFinished = false;
+      this.timer = 10; // Reset timer ke 10 detik
+      
+      this.timerInterval = setInterval(() => {
+        if (this.timer > 0) {
+          this.timer -= 1;
+        } else {
+          clearInterval(this.timerInterval); // Hentikan interval setelah 0 detik
+          this.isTimerFinished = true;
+          this.isTimerActive = false;
+        }
+      }, 1000); // Update setiap detik
+    },
+
+    createGimmickFunction(gimmick: string) {
+      // Pemetaan dari gimmick ke fungsi
+      const gimmicks = {
+        red: () => "red",
+        blue: () => "blue",
+        green: () => "green",
+        rock: () => this.handleGimmickChoice('rock'),
+        paper: () => this.handleGimmickChoice('paper'),
+        scissors: () => this.handleGimmickChoice('scissors'),
+        timer: () => {
+          this.startTimer(); // Panggil fungsi startTimer jika gimmick adalah 'timer'
+          return ''; // Tidak mengubah warna atau status lainnya
+        },
+        
+        // Anda bisa menambahkan gimmick lain di sini
+      };
+
+      return gimmicks[gimmick] || (() => ""); // Default gimmick yang tidak memberikan efek apa-apa
+    },
+
+
+    toggleLanguageMode() {
+      this.isIndonesianMode = !this.isIndonesianMode;
+      this.inputValue = '';
+      this.searchResult = [];
+      this.notificationMessage = '';
+    },
+
     clearNotificationMessage() {
       if (this.notificationMessage) {
-        this.notificationMessage = ""; // Clear notification when typing
+        this.notificationMessage = '';
       }
     },
 
+    changeTitleColor(color: string) {
+      this.titleStyle.color = color;
+    },
+
+    // Ubah metode pencocokan agar lebih fleksibel
+    doesInputMatchKey(input: string, key: string): boolean {
+      const inputWords = input.toLowerCase().trim().split(/\s+/); // Pisah input jadi array kata
+      const keyWords = key.toLowerCase().trim().split(/\s+/); // Pisah key jadi array kata
+
+      // Pastikan setiap kata dalam key ada di input
+      return keyWords.every((word) => inputWords.includes(word));
+    },
+
+
+    // Pastikan gimmick dipanggil jika kondisi terpenuhi
     search() {
-      this.searchResult = null; // Reset previous search result
+      this.searchResult = [];
+      this.notificationMessage = '';
+
+      let gimmickTriggered = false;
 
       if (this.isIndonesianMode) {
-        // Searching for Indonesian to English
-        const result = this.tree.searchByKey(this.inputValue.toLowerCase());
-        if (result) {
-          this.searchResult = {
-            value: result.value,
-            valueDescription: result.description,
-            key: "",
-            keyDescription: "",
-          };
+        const results = this.tree.searchSequentialKey(this.inputValue.toLowerCase());
+        if (results && results.length) {
+          this.searchResult = results.map((result) => {
+            if (
+              result.gimmick &&
+              this.doesInputMatchKey(this.inputValue, result.key) // Memastikan kecocokan kata
+            ) {
+              // Gimmick hanya dijalankan jika input cocok dengan semua kata di key
+              const gimmickResult = result.gimmick();
+              this.changeTitleColor(gimmickResult);
+              gimmickTriggered = true;
+            }
+            return {
+              value: result.value,
+              valueDescription: result.description,
+              gimmickResult: result.gimmick ? '' : '',
+              key: '',
+              keyDescription: '',
+            };
+          });
         } else {
-          this.notificationMessage = "Kata tidak ditemukan!";
-          this.notificationClass = "error-notification";
+          this.notificationMessage = 'Kata tidak ditemukan!';
+          this.notificationClass = 'error-notification';
         }
       } else {
-        // Searching for English to Indonesian
-        const result = this.tree.searchByValue(this.inputValue.toLowerCase());
-        if (result) {
-          this.searchResult = {
-            key: result.key,
-            keyDescription: result.description,
-            value: "",
-            valueDescription: "",
-          };
+        const results = this.tree.searchSequentialValue(this.inputValue.toLowerCase());
+        if (results && results.length) {
+          this.searchResult = results.map((result) => {
+            if (
+              result.gimmick &&
+              this.doesInputMatchKey(this.inputValue, result.key) // Memastikan kecocokan kata
+            ) {
+              // Gimmick hanya dijalankan jika input cocok dengan semua kata di key
+              const gimmickResult = result.gimmick();
+              this.changeTitleColor(gimmickResult);
+              gimmickTriggered = true;
+            }
+            return {
+              key: result.key,
+              keyDescription: result.description,
+              gimmickResult: result.gimmick ? '' : '',
+              value: '',
+              valueDescription: '',
+            };
+          });
         } else {
-          this.notificationMessage = "Nilai tidak ditemukan!";
-          this.notificationClass = "error-notification";
+          this.notificationMessage = 'Nilai tidak ditemukan!';
+          this.notificationClass = 'error-notification';
         }
       }
-    },
+
+      if (!gimmickTriggered) {
+        this.titleStyle.color = ''; // Reset title color if no gimmick
+      }
+    }
+
   },
 };
 </script>
 
+
+
+
+
 <style scoped>
-/* Global Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f9;
-  color: #333;
-}
-
-/* Container for the whole app */
-.container {
-  width: 900px;  /* Fixed width */
-  height: 800px; /* Fixed height */
-  margin: 0 auto; /* Horizontally center the container */
-  padding: 100px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: absolute; /* Positioning the container absolutely within the page */
-  top: 50%; /* Move it to the vertical center */
-  left: 50%; /* Move it to the horizontal center */
-  transform: translate(-50%, -50%); /* Adjust to perfectly center the container */
-  display: flex;
-  flex-direction: column;
-}
-
-
-/* Title Styling */
-.title {
-  font-family: 'Poppins', sans-serif; /* Use Poppins font */
-  font-size: 48px; /* Larger text size */
-  font-weight: 600; /* Semi-bold font weight */
-  text-align: center;
-  background: linear-gradient(45deg, #FFEB3B, #FFC107); /* Yellow gradient */
-  -webkit-background-clip: text;
-  color: transparent; /* Make text transparent so the gradient shows */
-  margin-bottom: 30px; /* Space below the title */
-  text-transform: uppercase; /* Capitalize all letters */
-  letter-spacing: 2px; /* Add spacing between letters */
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
-}
-
-
-/* Toggle Button Styles */
-.btn-toggle {
-  padding: 10px 15px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.btn-toggle:hover {
-  background-color: #2980b9;
-}
-
-/* Input Group Styles */
-.input-group {
-  margin-bottom: 20px;
-}
-
-.label {
-  display: block;
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 5px;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.input:focus {
-  border-color: #4CAF50;
-  outline: none;
-}
-
-.btn {
-  padding: 10px 15px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.btn:hover {
-  background-color: #b13232;
-}
-
-/* Static Notification Box */
-.notification {
-  padding: 10px;
-  margin-top: 20px;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 16px;
-  height: 50px; /* Fixed height for notification box */
-  overflow: hidden;
-}
-
-.success-notification {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.error-notification {
-  background-color: #f44336;
-  color: white;
-}
 
 /* Static Result Box */
 .result-box {
@@ -428,5 +416,48 @@ body {
   color: white;
 }
 
+.info-notification {
+  background-color: #2980b9;
+  color: white;
+}
 
+.timer-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.finished-message {
+  margin-top: 10px;
+  font-size: 18px;
+  color: green;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:disabled {
+  background-color: #000000;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.timer-message {
+  color: rgb(2, 1, 1);
+}
+
+
+.timer-container {
+  margin-top: 20px;
+  color: black;
+}
 </style>

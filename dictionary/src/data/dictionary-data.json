@@ -3,7 +3,41 @@
     "key": "apel",
     "keyDescription": "Sebuah buah berwarna merah yang biasa ditemukan di banyak negara.",
     "value": "apple",
-    "valueDescription": "A round fruit typically red or green, with a sweet taste."
+    "valueDescription": "A round fruit typically red or green, with a sweet taste.",
+    "gimmick": "red"
+
+  },
+  {
+    "key": "batu",
+    "keyDescription": "something grey and hard",
+    "value": "rock",
+    "valueDescription": "sesuatu yang abu-abu dan keras",
+    "gimmick": "rock"
+
+  },
+  {
+    "key": "gunting",
+    "keyDescription": "something grey and hard",
+    "value": "scissors",
+    "valueDescription": "sesuatu yang abu-abu dan keras",
+    "gimmick": "scissors"
+
+  },
+  {
+    "key": "waktu",
+    "keyDescription": "something grey and hard",
+    "value": "timer",
+    "valueDescription": "sesuatu yang abu-abu dan keras",
+    "gimmick": "timer"
+
+  },
+  {
+    "key": "kertas",
+    "keyDescription": "something grey and hard",
+    "value": "paper",
+    "valueDescription": "sesuatu yang abu-abu dan keras",
+    "gimmick": "paper"
+
   },
   {
     "key": "pisang",
@@ -112,5 +146,12 @@
     "keyDescription": "Sayuran berbentuk bulat dengan kulit tebal dan daging manis.",
     "value": "pumpkin",
     "valueDescription": "A round vegetable with thick skin and sweet flesh."
+  },
+  {
+    "key": "laut",
+    "keyDescription": "hamparan air yang sangat luas.",
+    "value": "sea",
+    "valueDescription": "the expanse of salt water that covers most of the earth's surface and surrounds its landmasses.",
+    "gimmick": "blue"
   }
 ]
